@@ -3,18 +3,50 @@
 
 #include "Game.h"
 #include "ResourceManager.h"
+# include "Lista.h"
+# include "TcpProtocol.h"
 
 
 // GLFW function declerations
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // The Width of the screen
-const GLuint SCREEN_WIDTH = 800;
+const GLuint SCREEN_WIDTH = 1900;
 // The height of the screen
-const GLuint SCREEN_HEIGHT = 600;
+const GLuint SCREEN_HEIGHT = 1000;
 
 Game Breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
+int n = 40, m = 76,**matrix;
+Lista *lista;
+void generateMatrix()
+{
+	matrix = new int*[n];
+	for (int i = 0;i < n;i++)
+	{
+		matrix[i] = new int[m];
+		for (int j = 0;j < m;j++)
+			matrix[i][j] = 2;
+	}
+}
+void GetStreets()
+{
+	lista = new Lista();
+	lista->push_back(0, 1, 26, 1,singleDotted);
+	lista->push_back(0, 3, 26, 3, singleDotted);
+	lista->push_back(26,1 ,30 ,1 , singleDotted);
+	lista->push_back(30, 1,34 , 2, singleDotted);
+	lista->push_back(34, 2, 38, 2, singleDotted);
+	lista->push_back(26, 3, 30, 3, singleDotted);
+	lista->push_back(30, 3, 34, 2, singleDotted);
 
+
+	//lista->push_back(, , , , singleDotted);
+	/*lista->push_back(0, 10, 10, 10, singleDotted);
+	lista->push_back(10, 10, 20, 20, singleDotted);
+	lista->push_back(20, 15, 38, 15, singleDotted);*/
+	//lista->push_back(10, 15, 20, 11, singleDotted);
+}
+ 
 int main(int argc, char *argv[])
 {
 	glfwInit();
@@ -39,7 +71,7 @@ int main(int argc, char *argv[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Initialize game
-	Breakout.Init();
+	Breakout.Init(glm::vec2(0,50), glm::vec2(500, 50));
 
 	// DeltaTime variables
 	GLfloat deltaTime = 0.0f;
@@ -47,11 +79,43 @@ int main(int argc, char *argv[])
 
 	// Start Game within Menu State
 	Breakout.State = GAME_ACTIVE;
+	/*TcpProtocol prot;
+	prot.SetServerConfiguration("192.168.0.124", "20000");
+	int m, n, **x;
+	Lista *list = prot.RetrivingPrimariData();
+	list->print();
+	prot.SetPositions("1", "2", " 3", "4");*/
+	//char *map = prot.GetMap("map1");
+
+	GetStreets();
+	Breakout.GetLista(lista);
+	SuperPipeLine *a = new SuperPipeLine();
+	a->nextPosition = glm::vec2(500, 150);
+	a->nextRotation = 90.0f;
+	Breakout.mainPipe.push_back(a);
+	
+	a = new SuperPipeLine();
+	a->nextPosition = glm::vec2(1000, 150);
+	a->nextRotation = 0.0f;
+	Breakout.mainPipe.push_back(a);
+	Breakout.secondPipe[0].push_back(a);
+	a = new SuperPipeLine();
+	a->nextPosition = glm::vec2(1000,15*50);
+	a->nextRotation = 90.0f;
+	Breakout.mainPipe.push_back(a);
+	Breakout.secondPipe[0].push_back(a);
+	a = new SuperPipeLine();
+	a->nextPosition = glm::vec2(1900, 15 * 50);
+	a->nextRotation = 0.0f;
+	Breakout.mainPipe.push_back(a);
+	Breakout.secondPipe[0].push_back(a);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculate delta time
 		GLfloat currentFrame = glfwGetTime();
+
+		
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		glfwPollEvents();
@@ -64,7 +128,7 @@ int main(int argc, char *argv[])
 		Breakout.Update(deltaTime);
 
 		// Render
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.85f, 0.85f, 0.85f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		Breakout.Render();
 
